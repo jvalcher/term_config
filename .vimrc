@@ -23,7 +23,7 @@ let MYVIMRC=expand("%HOME/.vimrc")
 let MYVIMINFO=expand("%HOME/.viminfo")
 
 " set <localleader>     ( <space> )
-nnoremap <SPACE> <Nop>
+nnoremap <Space> <Nop>
 let maplocalleader = " "
 
 " set <leader>            ( , )
@@ -31,6 +31,8 @@ noremap , <Nop>
 let mapleader=","
 
 let &fillchars ..= ',eob: '
+
+:set runtimepath=/home/jvalcher/.vim,$VIMRUNTIME
 
 
 
@@ -40,19 +42,39 @@ let &fillchars ..= ',eob: '
 
 " vim-plug plugins
 call plug#begin('~/.vim/plugged')
-    Plug 'joshdick/onedark.vim'                 " One Dark color scheme
+    Plug 'joshdick/onedark.vim'                 " Color scheme: One Dark
+    Plug 'dracula/vim', { 'as': 'dracula' }     " Color scheme: Dracula
+    Plug 'morhetz/gruvbox'
+    """""
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'scrooloose/nerdtree'                  " File manager
-    Plug 'PhilRunninger/nerdtree-buffer-ops'    " Highlight open NERDTree buffers, clear with 'w'
+    Plug 'ryanoasis/vim-devicons'               " add NERDTree devicons
+    Plug 'bryanmylee/vim-colorscheme-icons'     " colorize NERDTree devicons
     Plug 'sheerun/vim-polyglot'                 " Collection of Vim language packs 
     Plug 'nvie/vim-flake8'                      " Python Flake8 linter
     Plug 'junegunn/goyo.vim'                    " distraction-free screen
     Plug 'preservim/tagbar'                     " ctags menu
 call plug#end()
-
 filetype plugin on
 
-" set colorscheme
-colorscheme onedark
+" Coc.nvim
+  " List current extensions
+    " :CocList extensions
+  " coc extensions list
+    " https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions#implemented-coc-extensions 
+"
+" dropdown menu matching character(s) color
+hi CocSearch ctermfg=2
+"
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+"
+" Select menu item  (tab)
+inoremap <silent><expr> <tab> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<TAB>"
+inoremap <silent><expr> <cr> "\<c-g>u\<CR>"
+
 
 " Open/close NERDTree (<localleader> + n)
 function! OpenNERDTree()
@@ -70,35 +92,11 @@ let g:NERDTreeChDirMode=1  " make pwd the parent directory
 let NERDTreeQuitOnOpen=1   " close menu after opening file
 let NERDTreeShowHidden=0   " show hidden files in NERDTree
 
-" vim-bookmark
-    " <leader> b    - toggle bookmark
-    " <leader> a    - create annotation
-    " <leader> s    - show all bookmarks
-    " <leader> d    - delete current bookmark
-    " <leader> c    - toggle
-    "
-    " Add 'nnoremap <cr> <s-v><cr> to bm#location_list() in vim-bookmarks/autoload/bm.vim
-    " to fix Enter key not working to select bookmark
-let g:bookmark_no_default_key_mappings = 1  
-let g:bookmark_auto_close = 1               
-let g:bookmark_save_per_working_dir = 1     
-let g:bookmark_manage_per_buffer = 1
-let g:bookmark_auto_save = 1                
-let g:bookmark_show_toggle_warning = 0	    " no delete annotation warning
-let g:bookmark_show_warning = 1             " warn when clearing all bookmarks in buffer
-nnoremap <leader>b              :BookmarkToggle <CR>
-nnoremap <leader>a              :BookmarkAnnotate <CR>
-nnoremap <leader>s              :BookmarkShowAll <CR>
-nnoremap <leader>c              :BookmarkClearAll <CR>
-
 " disable line wrapping in quickfix window (vim-bookmarks)
 augroup quickfix
     autocmd!
     autocmd FileType qf setlocal nowrap
 augroup END
-
-" disabled quickfix line highlight in .vim/plugged/onedark.vim/colors/onedark.vim
-" 
 
 " vim-flake8        (F7)
 let g:flake8_show_in_gutter=1
@@ -125,7 +123,7 @@ autocmd! User GoyoEnter call <SID>goyo_enter()
 autocmd! User GoyoLeave call <SID>goyo_leave()
 
 " tagbar
-nnoremap <localleader>t :TagbarToggle <CR>
+nnoremap <localleader>t :TagbarOpenAutoClose <CR>
 
 
 
@@ -208,9 +206,6 @@ nnoremap <localleader>w :call ToggleAutoSave() <CR>
 " change without yanking
 nnoremap c "_c
 
-" map :q to :qa
-
-
 " toggle paste/nopaste		(F4)
 function! TogglePaste()
     if &paste == 0
@@ -230,11 +225,12 @@ nnoremap <localleader>r  q
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 " rename tmux pane and window to filename
+  " works with .bash_aliases, .tmux.conf (see #TMUX_RENAME)
 if exists('$TMUX')
     augroup TmuxRename
         autocmd!
         autocmd BufEnter * call system("tmux select-pane -T '" . expand("%:t") . "'")
-        autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
+        "autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
     augroup END
 endif
 
@@ -288,10 +284,20 @@ set history=1000
 " Styling "
 """""""""""
 
-" line number coloring
-hi LineNr ctermfg=24
+" set background
+set background=dark
 
-" status line layout
+" set colorscheme
+colorscheme gruvbox  
+hi MatchParen ctermbg=none ctermfg=yellow
+hi LineNr ctermfg=23
+
+" fix gruvbox comment issues:
+  " comment out `hi clear` in gruvbox.vim to fix status line issue
+" wait to apply Comment styling
+autocmd VimEnter * hi Comment term=bold ctermfg=8
+
+" status line formatting
 func! STL()
 
   " save state ... scrollbar
@@ -315,11 +321,12 @@ endfun
 " status line coloring
 hi Normal cterm=bold ctermbg=none
 hi StatusLine cterm=bold ctermbg=none ctermfg=172
-hi User1 ctermfg=24     " bar
-hi User2 ctermfg=172    " marker
+hi User1 ctermfg=24
+hi User2 ctermfg=172
 
 " render status line
-set stl=%!STL()
+autocmd VimEnter * set stl=%!STL()
+
 
 
 
@@ -327,28 +334,26 @@ set stl=%!STL()
 " Navigation "
 """"""""""""""
 
-" navigate up/down wrapped lines
+" move cursor up/down (including wrapped lines)
 nnoremap j gj
 nnoremap k gk
+
+" scroll up/down  (ctrl + m/n)
+nnoremap <C-m> kzz<Esc>
+nnoremap <C-n> jzz<Esc>
 
 " map t to T for jumping back to character
 nnoremap t T
 vnoremap t T
 
-" alt n -> ^[n
-" alt m -> ^[m
-" esc   -> ^[
-" move screen up/down  (ctrl + m/n)
-nnoremap <C-m> kzz<Esc>
-nnoremap <C-n> jzz<Esc>
-
-" return to previous buffer  (<localleader> a)
-nnoremap <localleader>a :bprevious <CR>
+" navigate buffers  (<leader> a/s)
+nnoremap <leader>a :bprevious<CR>
+nnoremap <leader>s :bnext<CR>
 
 " open terminal     (<leader> t)
 nnoremap <leader>t :shell <CR>
 
-" toggle centering cursor to screen    (<localleader> c)
+" toggle centering cursor vertically   (<localleader> c)
 function Center_cursor()
     let pos = getpos(".")
     normal! zz
@@ -431,13 +436,23 @@ augroup FILETYPES
   autocmd FileType markdown iabbrev <buffer> -- —
 
   " view binary data 
-  nnoremap <localleader>b :%!xxd<CR>
+  "nnoremap <localleader>b :%!xxd<CR>
 
   " turn off newline indentation in markdown
   let g:vim_markdown_new_list_item_indent = 0
 
   " turn on spellchecker inside
   autocmd BufRead,BufNewFile *.md,*.txt setlocal spell
+
+  " create GDB breakpoint string from current line  (Ctrl+x  --> 'break src/file.c:123')
+  function! CopyBreakpoint()
+      let l:filename = expand('%:t')
+      let l:linenumber = line('.')
+      let l:breakpoint = 'break src/' . l:filename . ':' . l:linenumber
+      let @+ = l:breakpoint
+      echo l:breakpoint
+  endfunction
+  nnoremap <leader>b :call CopyBreakpoint()<CR>
 
 augroup END
 
