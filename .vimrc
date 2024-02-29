@@ -190,7 +190,7 @@ nnoremap <localleader>w :call ToggleAutoSave() <CR>
 " change without yanking
 nnoremap c "_c
 
-" toggle paste/nopaste		(F4)
+" toggle paste/nopaste		(<localleader> p)
 function! TogglePaste()
     if &paste == 0
 		set paste
@@ -208,8 +208,7 @@ nnoremap <localleader>r  q
 " disable auto-commenting
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
-" rename tmux pane and window to filename
-  " works with .bash_aliases, .tmux.conf (see #TMUX_RENAME)
+" rename tmux pane to filename
 if exists('$TMUX')
     augroup TmuxRename
         autocmd!
@@ -425,7 +424,7 @@ augroup FILETYPES
   " turn off newline indentation in markdown
   let g:vim_markdown_new_list_item_indent = 0
 
-  " turn on spellchecker inside
+  " turn on spellchecker inside...
   autocmd BufRead,BufNewFile *.md,*.txt setlocal spell
 
   " create GDB breakpoint string from current line  (Ctrl+x  --> 'break src/file.c:123')
