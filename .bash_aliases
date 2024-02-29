@@ -155,6 +155,11 @@ lla () {
 }
 alias la="lla"
 
+# print directory contents after using `cd`
+cd() {
+    builtin cd "$@" && ll
+}
+
 # remove gdb message
 alias gdb="gdb -q"
 
@@ -224,8 +229,8 @@ print_git_branch() {
 set_prompt_vars
 
 export PS1="\
- ╭─$CURR_DIR───[$USR_HOST]  \$(print_git_branch)\n\
- ╰─$PROMPT_SYMBOL "
+   ╭─$CURR_DIR───[$USR_HOST]  \$(print_git_branch)\n\
+   ╰─$PROMPT_SYMBOL "
 
 # refresh prompt values if PANE_WIDTH or GIT_BRANCH has changed
 pre_prompt () {
