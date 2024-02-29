@@ -1,2 +1,2 @@
 # term_config
-- Base terminal configuration files
+- Bash terminal configuration files
