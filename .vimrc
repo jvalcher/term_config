@@ -1,20 +1,4 @@
 
-""""""""""""
-" Contents "
-""""""""""""
-
-" Function key shortcuts "
-" Local settings "
-" Plugins "
-" Misc settings "
-" Styling "
-" Navigation "
-" Panes "
-" File-specific settings "
-" Skeletons "
-" Compilers "
-
-
 """"""""""""""""""
 " Local settings "
 """"""""""""""""""
